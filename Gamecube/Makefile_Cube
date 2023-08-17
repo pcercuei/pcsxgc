@@ -17,7 +17,7 @@ include $(DEVKITPRO)/libogc2/gamecube_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	CubeSX
 BUILD		:=	build
-SOURCES		:=	. ./gc_input/ ./vm/ ./libgui/ ./menu/ ./fileBrowser/ ../PeopsSoftGPU/ ../dfsound/
+SOURCES		:=	. ./gc_input/ ./vm/ ./libgui/ ./menu/ ./fileBrowser/ ../dfsound/
 
 DATA		:=	data  
 
@@ -30,7 +30,7 @@ LTO			 = -flto # Uncomment to use link-time optimization
 
 CFLAGS	= -fipa-pta -g -O3 $(LTO) -Wall $(MACHDEP) $(INCLUDE) -Wno-stringop-truncation -Wno-strict-aliasing -Wno-misleading-indentation \
 		  -DHW_DOL -DNO_SOCKET -DHAVE_AESND \
-		  -D__GX__ -D_SDL -DRELEASE -DLIGHTREC=1 -DLIGHTREC_CUSTOM_MAP=1 \
+		  -D__GX__ -D_SDL -DRELEASE -DLIGHTREC=1 -DLIGHTREC_CUSTOM_MAP=1 -DUSE_GPULIB=1 \
 		  #-DSHOW_DEBUG -DPRINTGECKO #-DPROFILE #-DDEBUGON
 		  
 CXXFLAGS	=	$(CFLAGS) -Wno-register
@@ -61,6 +61,8 @@ export OUTPUT	:=	$(CURDIR)/$(TARGET)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir)) \
+					$(CURDIR)/../pcsx_rearmed/plugins/gpu_unai \
+					$(CURDIR)/../pcsx_rearmed/plugins/gpulib \
 					$(CURDIR)/../pcsx_rearmed/libpcsxcore \
 					$(CURDIR)/../pcsx_rearmed/libpcsxcore/lightrec \
 					$(CURDIR)/../pcsx_rearmed/libpcsxcore/new_dynarec
@@ -102,9 +104,15 @@ PCSX_SOURCES += cdriso.c \
 		spu.c \
 		plugin.c \
 		emu_if.c \
-		events.c
+		events.c \
+		gpu.c \
+		vout_pl.c
 
 CFILES += $(PCSX_SOURCES)
+
+UNAI_SOURCES += gpulib_if.cpp
+
+CPPFILES += $(UNAI_SOURCES)
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C

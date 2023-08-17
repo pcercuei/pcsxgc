@@ -38,6 +38,8 @@ extern "C" {
 #include "../fileBrowser/fileBrowser-CARD.h"
 }
 
+int iUseDither;
+
 extern void Func_SetPlayGame();
 
 void Func_TabGeneral();
@@ -917,7 +919,8 @@ void Func_ShowFpsOff()
 	showFPSonScreen = FPS_HIDE;
 }
 
-extern "C" void GPUsetframelimit(unsigned long option);
+/* gpulib doesn't implement GPUsetframelimit */
+extern "C" void GPUsetframelimit(unsigned long option) {}
 
 void Func_FpsLimitAuto()
 {

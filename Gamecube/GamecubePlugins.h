@@ -37,21 +37,21 @@ typedef struct {
 } PluginTable;
 #define NUM_PLUGINS 6
 
-/* PEOPS GPU */
-long PEOPS_GPUopen(unsigned long *, char *, char *); 
-long PEOPS_GPUinit(void);
-long PEOPS_GPUshutdown(void);
-long PEOPS_GPUclose(void);
-void PEOPS_GPUwriteStatus(unsigned long);
-void PEOPS_GPUwriteData(unsigned long);
-void PEOPS_GPUwriteDataMem(unsigned long *, int);
-unsigned long PEOPS_GPUreadStatus(void);
-unsigned long PEOPS_GPUreadData(void);
-void PEOPS_GPUreadDataMem(unsigned long *, int);
-long PEOPS_GPUdmaChain(unsigned long *,unsigned long);
-void PEOPS_GPUupdateLace(void);
-void PEOPS_GPUdisplayText(char *);
-long PEOPS_GPUfreeze(unsigned long,GPUFreeze_t *);
+/* GPULIB GPU */
+long GPULIB_GPUopen(unsigned long *, char *, char *); 
+long GPULIB_GPUinit(void);
+long GPULIB_GPUshutdown(void);
+long GPULIB_GPUclose(void);
+void GPULIB_GPUwriteStatus(unsigned long);
+void GPULIB_GPUwriteData(unsigned long);
+void GPULIB_GPUwriteDataMem(unsigned long *, int);
+unsigned long GPULIB_GPUreadStatus(void);
+unsigned long GPULIB_GPUreadData(void);
+void GPULIB_GPUreadDataMem(unsigned long *, int);
+long GPULIB_GPUdmaChain(unsigned long *,unsigned long);
+void GPULIB_GPUupdateLace(void);
+void GPULIB_GPUdisplayText(char *);
+long GPULIB_GPUfreeze(unsigned long,GPUFreeze_t *);
 
 
 /* PAD */
@@ -180,44 +180,42 @@ long CALLBACK DFS_SPUfreeze(uint32_t ulFreezeMode, SPUFreeze_t * pF, uint32_t cy
 	      (void*)DFS_SPUasync} \
 	       } }
 
-#define GPU_PEOPS_PLUGIN \
+#define GPU_GPULIB_PLUGIN \
 	{ "plugins/builtin_gpu",      \
 	  14,         \
 	  { { "GPUinit",  \
-	      (void*)PEOPS_GPUinit }, \
+	      (void*)GPULIB_GPUinit }, \
 	    { "GPUshutdown",	\
-	      (void*)PEOPS_GPUshutdown}, \
+	      (void*)GPULIB_GPUshutdown}, \
 	    { "GPUopen", \
-	      (void*)PEOPS_GPUopen}, \
+	      (void*)GPULIB_GPUopen}, \
 	    { "GPUclose", \
-	      (void*)PEOPS_GPUclose}, \
+	      (void*)GPULIB_GPUclose}, \
 	    { "GPUwriteStatus", \
-	      (void*)PEOPS_GPUwriteStatus}, \
+	      (void*)GPULIB_GPUwriteStatus}, \
 	    { "GPUwriteData", \
-	      (void*)PEOPS_GPUwriteData}, \
+	      (void*)GPULIB_GPUwriteData}, \
 	    { "GPUwriteDataMem", \
-	      (void*)PEOPS_GPUwriteDataMem}, \
+	      (void*)GPULIB_GPUwriteDataMem}, \
 	    { "GPUreadStatus", \
-	      (void*)PEOPS_GPUreadStatus}, \
+	      (void*)GPULIB_GPUreadStatus}, \
 	    { "GPUreadData", \
-	      (void*)PEOPS_GPUreadData}, \
+	      (void*)GPULIB_GPUreadData}, \
 	    { "GPUreadDataMem", \
-	      (void*)PEOPS_GPUreadDataMem}, \
+	      (void*)GPULIB_GPUreadDataMem}, \
 	    { "GPUdmaChain", \
-	      (void*)PEOPS_GPUdmaChain}, \
-	    { "GPUdisplayText", \
-	      (void*)PEOPS_GPUdisplayText}, \
+	      (void*)GPULIB_GPUdmaChain}, \
 	    { "GPUfreeze", \
-	      (void*)PEOPS_GPUfreeze}, \
+	      (void*)GPULIB_GPUfreeze}, \
 	    { "GPUupdateLace", \
-	      (void*)PEOPS_GPUupdateLace} \
+	      (void*)GPULIB_GPUupdateLace} \
 	       } }
 
 #define PLUGIN_SLOT_0 EMPTY_PLUGIN
 #define PLUGIN_SLOT_1 PAD1_PLUGIN
 #define PLUGIN_SLOT_2 PAD2_PLUGIN
 #define PLUGIN_SLOT_3 DFSOUND_PLUGIN
-#define PLUGIN_SLOT_4 GPU_PEOPS_PLUGIN
+#define PLUGIN_SLOT_4 GPU_GPULIB_PLUGIN
 #define PLUGIN_SLOT_5 EMPTY_PLUGIN
 
 #endif

@@ -212,7 +212,7 @@ static int allocate_vram(void)
 }
 #endif
 
-long GPUinit(void)
+long GPULIB_GPUinit(void)
 {
 #ifndef GPULIB_USE_MMAP
   if (gpu.vram == NULL) {
@@ -245,7 +245,7 @@ long GPUinit(void)
   return ret;
 }
 
-long GPUshutdown(void)
+long GPULIB_GPUshutdown(void)
 {
   long ret;
 
@@ -264,7 +264,7 @@ long GPUshutdown(void)
   return ret;
 }
 
-void GPUwriteStatus(uint32_t data)
+void GPULIB_GPUwriteStatus(uint32_t data)
 {
 	//senquack TODO: Would it be wise to add cmd buffer flush here, since
 	// status settings can affect commands already in buffer?
@@ -584,7 +584,7 @@ static void flush_cmd_buffer(void)
   gpu.cmd_len = left;
 }
 
-void GPUwriteDataMem(uint32_t *mem, int count)
+void GPULIB_GPUwriteDataMem(uint32_t *mem, int count)
 {
   int left;
 
@@ -598,7 +598,7 @@ void GPUwriteDataMem(uint32_t *mem, int count)
     log_anomaly("GPUwriteDataMem: discarded %d/%d words\n", left, count);
 }
 
-void GPUwriteData(uint32_t data)
+void GPULIB_GPUwriteData(uint32_t data)
 {
   log_io("gpu_write %08x\n", data);
   gpu.cmd_buffer[gpu.cmd_len++] = HTOLE32(data);
@@ -606,7 +606,7 @@ void GPUwriteData(uint32_t data)
     flush_cmd_buffer();
 }
 
-long GPUdmaChain(uint32_t *rambase, uint32_t start_addr, uint32_t *progress_addr)
+long GPULIB_GPUdmaChain(uint32_t *rambase, uint32_t start_addr, uint32_t *progress_addr)
 {
   uint32_t addr, *list, ld_addr = 0;
   int len, left, count;
@@ -685,7 +685,7 @@ long GPUdmaChain(uint32_t *rambase, uint32_t start_addr, uint32_t *progress_addr
   return cpu_cycles;
 }
 
-void GPUreadDataMem(uint32_t *mem, int count)
+void GPULIB_GPUreadDataMem(uint32_t *mem, int count)
 {
   log_io("gpu_dma_read  %p %d\n", mem, count);
 
@@ -696,7 +696,7 @@ void GPUreadDataMem(uint32_t *mem, int count)
     do_vram_io(mem, count, 1);
 }
 
-uint32_t GPUreadData(void)
+uint32_t GPULIB_GPUreadData(void)
 {
   uint32_t ret;
 
@@ -714,7 +714,7 @@ uint32_t GPUreadData(void)
   return ret;
 }
 
-uint32_t GPUreadStatus(void)
+uint32_t GPULIB_GPUreadStatus(void)
 {
   uint32_t ret;
 
@@ -734,7 +734,7 @@ struct GPUFreeze
   unsigned char psxVRam[1024*1024*2]; // current VRam image (full 2 MB for ZN)
 };
 
-long GPUfreeze(uint32_t type, struct GPUFreeze *freeze)
+long GPULIB_GPUfreeze(uint32_t type, struct GPUFreeze *freeze)
 {
   int i;
 
@@ -758,7 +758,7 @@ long GPUfreeze(uint32_t type, struct GPUFreeze *freeze)
       gpu.cmd_len = 0;
       for (i = 8; i > 0; i--) {
         gpu.regs[i] ^= 1; // avoid reg change detection
-        GPUwriteStatus((i << 24) | (gpu.regs[i] ^ 1));
+        GPULIB_GPUwriteStatus((i << 24) | (gpu.regs[i] ^ 1));
       }
       renderer_sync_ecmds(gpu.ex_regs);
       renderer_update_caches(0, 0, 1024, 512);
@@ -768,7 +768,7 @@ long GPUfreeze(uint32_t type, struct GPUFreeze *freeze)
   return 1;
 }
 
-void GPUupdateLace(void)
+void GPULIB_GPUupdateLace(void)
 {
   if (gpu.cmd_len > 0)
     flush_cmd_buffer();
@@ -803,7 +803,7 @@ void GPUupdateLace(void)
   renderer_notify_update_lace(1);
 }
 
-void GPUvBlank(int is_vblank, int lcf)
+void GPULIB_GPUvBlank(int is_vblank, int lcf)
 {
   int interlace = gpu.state.allow_interlace
     && (gpu.status & PSX_GPU_STATUS_INTERLACE)
