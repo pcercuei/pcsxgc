@@ -194,7 +194,10 @@ target_compile_definitions(libpcsxcore PUBLIC LIGHTREC LIGHTREC_CUSTOM_MAP NO_SO
 set_target_properties(libpcsxcore PROPERTIES LINKER_LANGUAGE C)
 target_link_libraries(libpcsxcore PUBLIC ${ZLIB_LIBRARIES} libchdr)
 
-get_filename_component(LIBGUI_RESOURCES_PATH Gamecube/libgui/resources ABSOLUTE)
+file(RELATIVE_PATH LIBGUI_RESOURCES_PATH
+	${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}/Gamecube/libgui/resources
+)
 configure_file(Gamecube/libgui/resources.s.cmakein libgui_resources.s @ONLY)
 add_library(libgui OBJECT
 	Gamecube/libgui/Button.cpp
@@ -219,7 +222,10 @@ target_include_directories(libgui PRIVATE Gamecube/libgui)
 set_target_properties(libgui PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(libgui PUBLIC libpcsxcore ogc ${LIBDI_LIBRARIES})
 
-get_filename_component(MENU_RESOURCES_PATH Gamecube/menu/resources ABSOLUTE)
+file(RELATIVE_PATH MENU_RESOURCES_PATH
+	${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}/Gamecube/menu/resources
+)
 configure_file(Gamecube/menu/MenuResources.s.cmakein menu_resources.s @ONLY)
 add_library(menu OBJECT
 	Gamecube/menu/ConfigureButtonsFrame.cpp
