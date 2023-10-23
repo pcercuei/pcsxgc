@@ -57,6 +57,9 @@ extern "C" {
 
 #include <psemu_plugin_defs.h>
 
+int loadISO(fileBrowser_file* file);
+extern "C" void SysStartCPU();
+
 #ifdef WII
 #include "MEM2.h"
 unsigned int MALLOC_MEM2 = 0;
@@ -362,7 +365,6 @@ int main(int argc, char *argv[])
 #endif
 	
 	loadSettings(argc, argv);
-	MenuContext *menu = new MenuContext(vmode);
 	VIDEO_SetPostRetraceCallback (ScanPADSandReset);
 
 #ifndef WII
@@ -388,15 +390,27 @@ int main(int argc, char *argv[])
 	// Initialize the network if the user has specified something in their SMB settings
 	if(strlen(&smbShareName[0]) && strlen(&smbIpAddr[0])) {
 	  init_network_thread();
-  }
+	}
+
+	if (argc > 2) {
+		std::string path(argv[1]);
+		path += "/";
+		path += argv[2];
+
+		fileBrowser_file f = { };
+
+		memcpy(f.name, path.c_str(), path.size() + 1);
+
+		loadISO(&f);
+		SysStartCPU();
+	}
 #endif
-	
-	while (menu->isRunning()) {}
-	
+
+	MenuContext menu(vmode);
+	while (menu.isRunning()) {}
+
 	// Shut down AESND
 	AESND_Reset();
-
-	delete menu;
 
 	return 0;
 }
