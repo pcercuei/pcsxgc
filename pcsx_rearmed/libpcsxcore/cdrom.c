@@ -517,14 +517,10 @@ static void cdrPlayInterrupt_Autopause()
 	u32 i;
 
 	if ((cdr.Mode & MODE_AUTOPAUSE) && cdr.TrackChanged) {
-		CDR_LOG( "CDDA STOP\n" );
+		CDR_LOG_I("autopause\n");
 
-		// Magic the Gathering
-		// - looping territory cdda
-
-		// ...?
-		//cdr.ResultReady = 1;
-		//cdr.Stat = DataReady;
+		SetResultSize(1);
+		cdr.Result[0] = cdr.StatP;
 		cdr.Stat = DataEnd;
 		setIrq(0x1000); // 0x1000 just for logging purposes
 
@@ -534,6 +530,7 @@ static void cdrPlayInterrupt_Autopause()
 	else if ((cdr.Mode & MODE_REPORT) && !cdr.ReportDelay &&
 		 ((cdr.subq.Absolute[2] & 0x0f) == 0 || cdr.FastForward || cdr.FastBackward))
 	{
+		SetResultSize(8);
 		cdr.Result[0] = cdr.StatP;
 		cdr.Result[1] = cdr.subq.Track;
 		cdr.Result[2] = cdr.subq.Index;
@@ -558,15 +555,10 @@ static void cdrPlayInterrupt_Autopause()
 			cdr.Result[4] = cdr.subq.Absolute[1];
 			cdr.Result[5] = cdr.subq.Absolute[2];
 		}
-
 		cdr.Result[6] = abs_lev_max >> 0;
 		cdr.Result[7] = abs_lev_max >> 8;
 
-		// Rayman: Logo freeze (resultready + dataready)
-		cdr.ResultReady = 1;
 		cdr.Stat = DataReady;
-
-		SetResultSize(8);
 		setIrq(0x1001);
 	}
 
@@ -667,11 +659,12 @@ void cdrPlayReadInterrupt(void)
 
 	if (!cdr.Play) return;
 
-	CDR_LOG( "CDDA - %d:%d:%d\n",
-		cdr.SetSectorPlay[0], cdr.SetSectorPlay[1], cdr.SetSectorPlay[2] );
+	CDR_LOG("CDDA - %02d:%02d:%02d m %02x\n",
+		cdr.SetSectorPlay[0], cdr.SetSectorPlay[1], cdr.SetSectorPlay[2], cdr.Mode);
 
 	SetPlaySeekRead(cdr.StatP, STATUS_PLAY);
 	if (memcmp(cdr.SetSectorPlay, cdr.SetSectorEnd, 3) == 0) {
+		CDR_LOG_I("end stop\n");
 		StopCdda();
 		SetPlaySeekRead(cdr.StatP, 0);
 		cdr.TrackChanged = TRUE;
@@ -1139,6 +1132,8 @@ void cdrInterrupt(void) {
 					cdr.Result[1] |= 0x80;
 			}
 			cdr.Result[0] |= (cdr.Result[1] >> 4) & 0x08;
+			CDR_LOG_I("CdlID: %02x %02x %02x %02x\n", cdr.Result[0],
+				cdr.Result[1], cdr.Result[2], cdr.Result[3]);
 
 			/* This adds the string "PCSX" in Playstation bios boot screen */
 			memcpy((char *)&cdr.Result[4], "PCSX", 4);
@@ -1701,7 +1696,13 @@ void cdrReset() {
 	cdr.Reg2 = 0x1f;
 	cdr.Stat = NoIntr;
 	cdr.FifoOffset = DATA_SIZE; // fifo empty
-	if (CdromId[0] == '\0') {
+
+	CDR_getStatus(&stat);
+	if (stat.Status & STATUS_SHELLOPEN) {
+		cdr.DriveState = DRIVESTATE_LID_OPEN;
+		cdr.StatP = STATUS_SHELLOPEN;
+	}
+	else if (CdromId[0] == '\0') {
 		cdr.DriveState = DRIVESTATE_STOPPED;
 		cdr.StatP = 0;
 	}
