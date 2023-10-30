@@ -102,18 +102,22 @@ target_link_libraries(lightrec PUBLIC lightning)
 
 option(WITH_LIGHTREC_THREADED_COMPILER "Enabled Lightrec's threaded compiler" OFF)
 if (WITH_LIGHTREC_THREADED_COMPILER)
+	add_library(pthread OBJECT Gamecube/pthread.c)
+	set_target_properties(pthread PROPERTIES LINKER_LANGUAGE C)
+	target_link_libraries(pthread PUBLIC ogc)
+
+	find_path(PTHREAD_INCLUDE_DIR pthread.h REQUIRED)
+	target_include_directories(pthread PUBLIC ${PTHREAD_INCLUDE_DIR})
+
 	target_sources(lightrec PRIVATE
 		pcsx_rearmed/deps/lightrec/reaper.c
 		pcsx_rearmed/deps/lightrec/recompiler.c
 	)
 
-	find_library(PTHREAD_LIBRARIES pthread REQUIRED)
 	find_path(PTHREAD_INCLUDE_DIR pthread.h REQUIRED)
+	target_link_libraries(lightrec PUBLIC pthread)
 
-	target_include_directories(lightrec PRIVATE ${PTHREAD_INCLUDE_DIR})
-	target_link_libraries(lightrec PUBLIC ${PTHREAD_LIBRARIES})
-
-	target_compile_definitions(lightrec PRIVATE LIGHTREC_ENABLE_THREADED_COMPILER)
+	target_compile_definitions(lightrec PRIVATE LIGHTREC_ENABLE_THREADED_COMPILER _POSIX_THREADS)
 else()
 	target_compile_definitions(lightrec PRIVATE LIGHTREC_ENABLE_THREADED_COMPILER=0)
 endif()
@@ -343,6 +347,7 @@ set_target_properties(wiisx PROPERTIES
 
 target_link_libraries(wiisx PRIVATE
 	menu libgui filebrowser dfsound libpcsxcore libchdr lzma lightrec lightning gpu
+	$<$<BOOL:WITH_LIGHTREC_THREADED_COMPILER>:pthread>
 	${AESND_LIBRARIES} ${FAT_LIBRARIES} ${ISO9660_LIBRARIES}
 	${TINYSMB_LIBRARIES} ${LIBDI_LIBRARIES} ${LIBWIIUSE_LIBRARIES} ${LIBBTE_LIBRARIES}
 )
